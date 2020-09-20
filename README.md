@@ -1,6 +1,9 @@
 # CPSC459ScroogeCoin
 
 Mircea Dumitrache
+
 Thomas Ngo
+
 James Vu
-Julian Coronado
+
+Julian Coronado juliancoronado@csu.fullerton.edu
