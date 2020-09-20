@@ -22,7 +22,7 @@ public class TxHandler {
 	   and false otherwise.
 	 */
 	
-	private boolean areCoinsExistInPool(Transaction tx) {
+	private boolean areCoinsExistedInPool(Transaction tx) {
 		ArrayList<Transaction.Input> inputs = tx.getInputs();
 		ArrayList<UTXO> temp = new ArrayList<UTXO>();
 		for (int i = 0; i < tx.numInputs(); i++) {
@@ -35,10 +35,30 @@ public class TxHandler {
 		}
 		return true;
 	}
+	
+	private boolean areSignaturesValid(Transaction tx) {
+		byte[] msg;
+		byte[] sig;
+		boolean isValidSig;
+		for (int i=0; i < tx.numInputs(); i ++) {
+			msg = tx.getRawDataToSign(i);
+			Transaction.Input in = tx.getInput(i);
+			sig = in.signature;
+			UTXO prevUTXO = new UTXO(in.prevTxHash, in.outputIndex);
+			Transaction.Output prevTxOp= my_ledger.getTxOutput(prevUTXO);
+			RSAKey pKey = prevTxOp.address; 
+			isValidSig = pKey.verifySignature(msg, sig);
+			if (!isValidSig) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public boolean isValidTx(Transaction tx) {
 		// IMPLEMENT THIS
-		return areCoinsExistInPool(tx);
+		return areCoinsExistedInPool(tx) && 
+				areSignaturesValid(tx);
 		
 //		return true;
 	}
