@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class TxHandler {
 
@@ -29,7 +30,8 @@ public class TxHandler {
 			temp.add(new UTXO(inputs.get(i).prevTxHash, inputs.get(i).outputIndex));
 		}
 		for (UTXO curr: temp) {
-			if(!my_ledger.contains(curr)) {
+			if(!my_ledger.contains(curr
+					)) {
 				return false;
 			}
 		}
@@ -54,11 +56,26 @@ public class TxHandler {
 		}
 		return true;
 	}
+	
+	private boolean isUTXOAlreadyClaimed(Transaction tx) {
+		HashSet<UTXO> claimedUTXO= new HashSet<UTXO>();
+		
+		for (int i=0; i< tx.numInputs(); i++) {
+			Transaction.Input in = tx.getInput(i);
+			UTXO prevUTXO = new UTXO(in.prevTxHash, in.outputIndex);
+			if (claimedUTXO.contains(prevUTXO)) {
+				return false;
+			}
+			claimedUTXO.add(prevUTXO);
+		}
+		return true;
+	}
 
 	public boolean isValidTx(Transaction tx) {
 		// IMPLEMENT THIS
 		return areCoinsExistedInPool(tx) && 
-				areSignaturesValid(tx);
+				areSignaturesValid(tx) &&
+				isUTXOAlreadyClaimed(tx);
 		
 //		return true;
 	}
