@@ -30,8 +30,7 @@ public class TxHandler {
 			temp.add(new UTXO(inputs.get(i).prevTxHash, inputs.get(i).outputIndex));
 		}
 		for (UTXO curr: temp) {
-			if(!my_ledger.contains(curr
-					)) {
+			if(!my_ledger.contains(curr)) {
 				return false;
 			}
 		}
@@ -70,12 +69,23 @@ public class TxHandler {
 		}
 		return true;
 	}
+	
+	private boolean areAllOutputPositive(Transaction tx) {
+		ArrayList<Transaction.Output> outputs = tx.getOutputs();
+		for (Transaction.Output op: outputs) {
+			if (op.value < 0) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 	public boolean isValidTx(Transaction tx) {
 		// IMPLEMENT THIS
 		return areCoinsExistedInPool(tx) && 
 				areSignaturesValid(tx) &&
-				isUTXOAlreadyClaimed(tx);
+				isUTXOAlreadyClaimed(tx) &&
+				areAllOutputPositive(tx);
 		
 //		return true;
 	}
