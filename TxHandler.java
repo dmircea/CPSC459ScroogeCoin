@@ -17,8 +17,8 @@ public class TxHandler {
 	 * (1) all outputs claimed by tx are in the current UTXO pool, 
 	 * (2) the signatures on each input of tx are valid, 
 	 * (3) no UTXO is claimed multiple times by tx, 
-	 * (4) all of txâ€™s output values are non-negative, and
-	 * (5) the sum of txâ€™s input values is greater than or equal to the sum of   
+	 * (4) all of tx’s output values are non-negative, and
+	 * (5) the sum of tx’s input values is greater than or equal to the sum of   
 	        its output values;
 	   and false otherwise.
 	 */
@@ -59,7 +59,7 @@ public class TxHandler {
 	private boolean isUTXOAlreadyClaimed(Transaction tx) {
 		HashSet<UTXO> claimedUTXO= new HashSet<UTXO>();
 		
-		for (int i=0; i< tx.numInputs(); i++) {
+		for (int i=0; i < tx.numInputs(); i++) {
 			Transaction.Input in = tx.getInput(i);
 			UTXO prevUTXO = new UTXO(in.prevTxHash, in.outputIndex);
 			if (claimedUTXO.contains(prevUTXO)) {
@@ -79,13 +79,33 @@ public class TxHandler {
 		}
 		return true;
 	}
+	
+	private boolean checkOutputExceedsInput(Transaction tx) {
+		ArrayList<Transaction.Output> outputs = tx.getOutputs();
+		double totalOp = 0.0;
+		double totalIn = 0.0;
+		for (Transaction.Output op: outputs) {
+			totalOp += op.value;
+		}
+		for (int i=0; i < tx.numInputs(); i++) {
+			Transaction.Input in = tx.getInput(i);
+			UTXO prevUTXO = new UTXO(in.prevTxHash, in.outputIndex);
+			Transaction.Output prevTxOp= my_ledger.getTxOutput(prevUTXO);
+			totalIn += prevTxOp.value;
+		}
+		if (totalOp > totalIn) {
+			return false;
+		}
+		return true;
+	}
 
 	public boolean isValidTx(Transaction tx) {
 		// IMPLEMENT THIS
 		return areCoinsExistedInPool(tx) && 
 				areSignaturesValid(tx) &&
 				isUTXOAlreadyClaimed(tx) &&
-				areAllOutputPositive(tx);
+				areAllOutputPositive(tx) &&
+				checkOutputExceedsInput(tx);
 		
 //		return true;
 	}
