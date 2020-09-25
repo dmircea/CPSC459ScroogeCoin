@@ -124,17 +124,14 @@ public class TxHandler {
 				validTx.add(tx);
 				// avoid double-spend coins by removing the unspent coin from the ledger
 				ArrayList<Transaction.Input> inputs = tx.getInputs();
-				ArrayList<UTXO> temp = new ArrayList<UTXO>();
 				for (int i=0; i < tx.numInputs(); i++) {
-					temp.add(new UTXO(inputs.get(i).prevTxHash, inputs.get(i).outputIndex));
+					UTXO utxo = new UTXO(inputs.get(i).prevTxHash, inputs.get(i).outputIndex);
+					my_ledger.removeUTXO(utxo);
 				}
-				for(UTXO curr: temp) {
-					my_ledger.removeUTXO(curr);
-				}
+
 				
 				// for newly created coins, we need to add them back to update the current UTXOpool
 				// outputs are the newly created coins in a txn
-//				ArrayList<Transaction.Output> outputs = tx.getOutputs();
 				for(int i=0; i < tx.numOutputs(); i++) {
 					Transaction.Output op = tx.getOutput(i);
 					UTXO utxo = new UTXO(tx.getHash(), i);
