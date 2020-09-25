@@ -1,5 +1,7 @@
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class TxHandler {
 
@@ -106,8 +108,7 @@ public class TxHandler {
 				isUTXOAlreadyClaimed(tx) &&
 				areAllOutputPositive(tx) &&
 				checkOutputExceedsInput(tx);
-		
-//		return true;
+
 	}
 
 	/* Handles each epoch by receiving an unordered array of proposed 
@@ -117,12 +118,33 @@ public class TxHandler {
 	 */
 	public Transaction[] handleTxs(Transaction[] possibleTxs) {
 		// IMPLEMENT THIS
+		Set<Transaction> validTx = new HashSet<Transaction>(); // make sure txns are unique
 		for (Transaction tx: possibleTxs) {
-			if(!isValidTx(tx)) {
-				return null;
+			if(isValidTx(tx)) {
+				validTx.add(tx);
+				// avoid double-spend coins by removing the unspent coin from the ledger
+				ArrayList<Transaction.Input> inputs = tx.getInputs();
+				ArrayList<UTXO> temp = new ArrayList<UTXO>();
+				for (int i=0; i < tx.numInputs(); i++) {
+					temp.add(new UTXO(inputs.get(i).prevTxHash, inputs.get(i).outputIndex));
+				}
+				for(UTXO curr: temp) {
+					my_ledger.removeUTXO(curr);
+				}
+				
+				// for newly created coins, we need to add them back to update the current UTXOpool
+				// outputs are the newly created coins in a txn
+//				ArrayList<Transaction.Output> outputs = tx.getOutputs();
+				for(int i=0; i < tx.numOutputs(); i++) {
+					Transaction.Output op = tx.getOutput(i);
+					UTXO utxo = new UTXO(tx.getHash(), i);
+					my_ledger.addUTXO(utxo, op);
+				}
 			}
 		}
-		return possibleTxs;
+		// inspired from https://stackoverflow.com/questions/5374311/convert-arrayliststring-to-string-array
+		Transaction[] reTxns = new Transaction[validTx.size()];
+		return validTx.toArray(reTxns);
 	}
 
 } 
