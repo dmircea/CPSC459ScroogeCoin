@@ -2,7 +2,7 @@
 
 Mircea Dumitrache
 
-Thomas Ngo
+Thomas Ngo tngo0508@csu.fullerton.edu <br>
 
 James Vu
 
