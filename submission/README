@@ -7,7 +7,7 @@ Mircea Dumitrache dgmircea@FULLERTON.EDU
 Julian Coronado juliancoronado@csu.fullerton.edu
 
 - We completed everything include the extra credit
-- files include: TxHandler.java and MaxFeeTx
+- files include: TxHandler.java, MaxFeeTxHandler_solution_1.java, MaxFeeTxHandler_solution_2.java
 
 Note:
 - For the extra credit, we submit 2 solutions:
