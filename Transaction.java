@@ -7,9 +7,9 @@ import java.security.NoSuchAlgorithmException;
 public class Transaction {
 
    public class Input {
-      public byte[] prevTxHash;   // hash of the Transaction whose output is being used
-      public int outputIndex;     // used output's index in the previous transaction 
-      public byte[] signature;    // the signature produced to check validity
+      public byte[] prevTxHash; // hash of the Transaction whose output is being used
+      public int outputIndex; // used output's index in the previous transaction
+      public byte[] signature; // the signature produced to check validity
 
       public Input(byte[] prevHash, int index) {
          if (prevHash == null)
@@ -18,6 +18,7 @@ public class Transaction {
             prevTxHash = Arrays.copyOf(prevHash, prevHash.length);
          outputIndex = index;
       }
+
       public void addSignature(byte[] sig) {
          if (sig == null)
             signature = null;
@@ -27,8 +28,8 @@ public class Transaction {
    }
 
    public class Output {
-      public double value;        // value in bitcoins of the output
-      public RSAKey address;      // the address or public key of the recipient
+      public double value; // value in bitcoins of the output
+      public RSAKey address; // the address or public key of the recipient
 
       public Output(double v, RSAKey addr) {
          value = v;
@@ -36,8 +37,8 @@ public class Transaction {
       }
    }
 
-   private byte[] hash;    // hash of the transaction, its unique id
-   private ArrayList<Input> inputs;   // inputs
+   private byte[] hash; // hash of the transaction, its unique id
+   private ArrayList<Input> inputs; // inputs
    private ArrayList<Output> outputs; // outputs
 
    public Transaction() {
@@ -79,11 +80,11 @@ public class Transaction {
    public byte[] getRawDataToSign(int index) {
       // ith input and all outputs
       ArrayList<Byte> sigData = new ArrayList<Byte>();
-      if (index > inputs.size()) 
+      if (index > inputs.size())
          return null;
       Input in = inputs.get(index);
       byte[] prevTxHash = in.prevTxHash;
-      ByteBuffer b = ByteBuffer.allocate(Integer.SIZE/8);
+      ByteBuffer b = ByteBuffer.allocate(Integer.SIZE / 8);
       b.putInt(in.outputIndex);
       byte[] outputIndex = b.array();
       if (prevTxHash != null)
@@ -92,7 +93,7 @@ public class Transaction {
       for (int i = 0; i < outputIndex.length; i++)
          sigData.add(outputIndex[i]);
       for (Output op : outputs) {
-         ByteBuffer bo = ByteBuffer.allocate(Double.SIZE/8);
+         ByteBuffer bo = ByteBuffer.allocate(Double.SIZE / 8);
          bo.putDouble(op.value);
          byte[] value = bo.array();
          byte[] addressExponent = op.address.getExponent().toByteArray();
@@ -106,7 +107,7 @@ public class Transaction {
       }
       byte[] sigD = new byte[sigData.size()];
       int i = 0;
-      for(Byte sb : sigData)
+      for (Byte sb : sigData)
          sigD[i++] = sb;
       return sigD;
    }
@@ -119,7 +120,7 @@ public class Transaction {
       ArrayList<Byte> rawTx = new ArrayList<Byte>();
       for (Input in : inputs) {
          byte[] prevTxHash = in.prevTxHash;
-         ByteBuffer b = ByteBuffer.allocate(Integer.SIZE/8);
+         ByteBuffer b = ByteBuffer.allocate(Integer.SIZE / 8);
          b.putInt(in.outputIndex);
          byte[] outputIndex = b.array();
          byte[] signature = in.signature;
@@ -133,7 +134,7 @@ public class Transaction {
                rawTx.add(signature[i]);
       }
       for (Output op : outputs) {
-         ByteBuffer b = ByteBuffer.allocate(Double.SIZE/8);
+         ByteBuffer b = ByteBuffer.allocate(Double.SIZE / 8);
          b.putDouble(op.value);
          byte[] value = b.array();
          byte[] addressExponent = op.address.getExponent().toByteArray();
@@ -147,7 +148,7 @@ public class Transaction {
       }
       byte[] tx = new byte[rawTx.size()];
       int i = 0;
-      for(Byte b : rawTx)
+      for (Byte b : rawTx)
          tx[i++] = b;
       return tx;
    }
@@ -157,7 +158,7 @@ public class Transaction {
          MessageDigest md = MessageDigest.getInstance("SHA-256");
          md.update(getRawTx());
          hash = md.digest();
-      } catch(NoSuchAlgorithmException x) {
+      } catch (NoSuchAlgorithmException x) {
          x.printStackTrace(System.err);
       }
    }
@@ -165,7 +166,7 @@ public class Transaction {
    public void setHash(byte[] h) {
       hash = h;
    }
-   
+
    public byte[] getHash() {
       return hash;
    }
